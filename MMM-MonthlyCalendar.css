@@ -1,0 +1,27 @@
+.MMM-MonthlyCalendar .wrapper {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.MMM-MonthlyCalendar .header {
+  text-align: center;
+}
+
+.MMM-MonthlyCalendar .cell {
+  height: 120px;
+  text-align: center;
+  vertical-align: top;
+}
+
+.MMM-MonthlyCalendar .today {
+  background-color: rgba(192, 192, 192, 0.2);
+}
+
+.MMM-MonthlyCalendar .event {
+  text-align: left;
+  white-space: nowrap;
+  overflow-x: hidden;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
