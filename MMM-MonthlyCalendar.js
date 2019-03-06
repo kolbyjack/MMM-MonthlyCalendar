@@ -14,6 +14,7 @@ function el(tag, options) {
 Module.register("MMM-MonthlyCalendar", {
   // Default module config
   defaults: {
+    hideCalendars: [],
   },
 
   start: function() {
@@ -37,6 +38,8 @@ Module.register("MMM-MonthlyCalendar", {
         }
 
         return e;
+      }).filter(e => {
+        return !self.config.hideCalendars.includes(e.calendarName);
       });
 
       self.updateDom();
