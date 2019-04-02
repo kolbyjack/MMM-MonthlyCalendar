@@ -25,3 +25,7 @@
   padding-right: 3px;
 }
 
+.MMM-MonthlyCalendar .dimmer {
+  filter: brightness(45%);
+}
+

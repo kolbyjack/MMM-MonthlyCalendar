@@ -11,6 +11,20 @@ function el(tag, options) {
   return result;
 }
 
+function addOneDay(d) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds());
+}
+
+function diffDays(a, b) {
+  a = new Date(a);
+  b = new Date(b);
+  
+  a.setHours(0, 0, 0, 0);
+  b.setHours(0, 0, 0, 0);
+
+  return Math.round((a.getTime() - b.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+}
+
 Module.register("MMM-MonthlyCalendar", {
   // Default module config
   defaults: {
@@ -46,9 +60,9 @@ Module.register("MMM-MonthlyCalendar", {
     }
   },
 
-	getStyles: function () {
-		return ["MMM-MonthlyCalendar.css"];
-	},
+  getStyles: function () {
+    return ["MMM-MonthlyCalendar.css"];
+  },
 
   getDom: function() {
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -71,19 +85,19 @@ Module.register("MMM-MonthlyCalendar", {
     for (var week = 0; week < 6 && date <= monthDays; ++week) {
       row = el("tr", { "className": "xsmall" });
 
-      for (day = 0; day < 7; ++day) {
+      for (day = 0; day < 7; ++day, ++date) {
         cell = el("td", { "className": "cell" });
         if (date === today) {
           cell.classList.add("today");
         }
-        if (date > 0) {
-          dateCells[date] = cell;
-          cell.appendChild(el("div", { "innerHTML": date }));
+        var cellText = date;
+        if (date <= 0 || monthDays < date) {
+          cellText = new Date(now.getFullYear(), now.getMonth(), date).getDate();
+          cell.classList.add("dimmer");
         }
+        cell.appendChild(el("div", { "innerHTML": cellText }));
         row.appendChild(cell);
-        if (++date > monthDays) {
-          break;
-        }
+        dateCells[date] = cell;
       }
 
       table.appendChild(row);
@@ -93,10 +107,12 @@ Module.register("MMM-MonthlyCalendar", {
     var monthEnd = new Date(now.getFullYear(), now.getMonth(), monthDays, 23, 59, 59);
     for (var i in self.events) {
       var e = self.events[i];
+      var text = e.title;
 
-      if (monthStart <= e.endDate && e.startDate <= monthEnd) {
-        for (date = e.startDate.getDate(); date <= e.endDate.getDate(); ++date) {
-          var text = e.title;
+      for (date = e.startDate; date <= e.endDate; date = addOneDay(date)) {
+        var dayDiff = diffDays(date, monthStart);
+
+        if (dayDiff in dateCells) {
           if (!e.fullDayEvent) {
             function formatTime(d) {
               function z(n) {
@@ -112,7 +128,7 @@ Module.register("MMM-MonthlyCalendar", {
             }
             text = formatTime(e.startDate) + " " + text;
           }
-          dateCells[date].appendChild(el("div", { "className": "event", "innerText": text }));
+          dateCells[dayDiff].appendChild(el("div", { "className": "event", "innerText": text }));
         }
       }
     }
