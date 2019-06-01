@@ -87,9 +87,10 @@ Module.register("MMM-MonthlyCalendar", {
         var today = new Date().setHours(12, 0, 0, 0).valueOf();
 
         if (today !== self.displayedDay || !equals(self.events, self.displayedEvents)) {
-          console.log("Skipped " + self.skippedUpdateCount + " updates; " + ((today !== self.displayedDay) ? "new day" : "updated events"));
+          console.log("MMM-MonthlyCalendar: Skipped " + self.skippedUpdateCount + " updates; " + ((today !== self.displayedDay) ? "new day" : "updated events"));
           self.displayedDay = today;
           self.displayedEvents = self.events;
+          self.updateTimer = null;
           self.skippedUpdateCount = 0;
           self.updateDom();
         }
