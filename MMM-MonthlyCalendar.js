@@ -114,27 +114,27 @@ Module.register("MMM-MonthlyCalendar", {
     }
     table.appendChild(row);
 
-    var date = 1 - new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+    var cellDate = 1 - new Date(now.getFullYear(), now.getMonth(), 1).getDay();
     var monthDays = 32 - new Date(now.getFullYear(), now.getMonth(), 32).getDate();
     var today = now.getDate();
     var dateCells = [];
 
-    for (var week = 0; week < 6 && date <= monthDays; ++week) {
+    for (var week = 0; week < 6 && cellDate <= monthDays; ++week) {
       row = el("tr", { "className": "xsmall" });
 
-      for (day = 0; day < 7; ++day, ++date) {
+      for (day = 0; day < 7; ++day, ++cellDate) {
         cell = el("td", { "className": "cell" });
-        if (date === today) {
+        if (cellDate === today) {
           cell.classList.add("today");
         }
-        var cellText = date;
-        if (date <= 0 || monthDays < date) {
-          cellText = new Date(now.getFullYear(), now.getMonth(), date).getDate();
+        var cellText = cellDate;
+        if (cellDate <= 0 || monthDays < cellDate) {
+          cellText = new Date(now.getFullYear(), now.getMonth(), cellDate).getDate();
           cell.classList.add("dimmer");
         }
         cell.appendChild(el("div", { "innerHTML": cellText }));
         row.appendChild(cell);
-        dateCells[date] = cell;
+        dateCells[cellDate] = cell;
       }
 
       table.appendChild(row);
@@ -146,8 +146,8 @@ Module.register("MMM-MonthlyCalendar", {
       var e = self.events[i];
       var text = e.title;
 
-      for (date = e.startDate; date <= e.endDate; date = addOneDay(date)) {
-        var dayDiff = diffDays(date, monthStart);
+      for (var eventDate = e.startDate; eventDate <= e.endDate; eventDate = addOneDay(eventDate)) {
+        var dayDiff = diffDays(eventDate, monthStart);
 
         if (dayDiff in dateCells) {
           if (!e.fullDayEvent) {
