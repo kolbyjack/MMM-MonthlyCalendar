@@ -25,6 +25,26 @@ function diffDays(a, b) {
   return Math.round((a.getTime() - b.getTime()) / (24 * 60 * 60 * 1000)) + 1;
 }
 
+function equals(a, b) {
+  if (typeof(a) !== typeof(b)) {
+    return false;
+  }
+
+  if (!!a && (a.constructor === Array || a.constructor === Object)) {
+    for (var key in a) {
+      if (!b.hasOwnProperty(key) || !equals(a[key], b[key])) {
+        return false;
+      }
+    }
+
+    return true;
+  } else if (!!a && a.constructor == Date) {
+    return a.valueOf() === b.valueOf();
+  }
+
+  return a === b;
+}
+
 Module.register("MMM-MonthlyCalendar", {
   // Default module config
   defaults: {
@@ -35,8 +55,10 @@ Module.register("MMM-MonthlyCalendar", {
     var self = this;
 
     self.events = [];
-
-    // TODO: Set timer to refresh events?
+    self.displayedDay = null;
+    self.displayedEvents = [];
+    self.updateTimer = null;
+    self.skippedUpdateCount = 0;
   },
 
   notificationReceived: function(notification, payload) {
@@ -56,7 +78,22 @@ Module.register("MMM-MonthlyCalendar", {
         return !self.config.hideCalendars.includes(e.calendarName);
       });
 
-      self.updateDom();
+      if (self.updateTimer !== null) {
+        clearTimeout(self.updateTimer);
+        ++self.skippedUpdateCount;
+      }
+
+      self.updateTimer = setTimeout(() => {
+        var today = new Date().setHours(12, 0, 0, 0).valueOf();
+
+        if (today !== self.displayedDay || !equals(self.events, self.displayedEvents)) {
+          console.log("Skipped " + self.skippedUpdateCount + " updates; " + ((today !== self.displayedDay) ? "new day" : "updated events"));
+          self.displayedDay = today;
+          self.displayedEvents = self.events;
+          self.skippedUpdateCount = 0;
+          self.updateDom();
+        }
+      }, 5000);
     }
   },
 
