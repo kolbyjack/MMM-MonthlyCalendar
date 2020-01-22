@@ -169,7 +169,31 @@ Module.register("MMM-MonthlyCalendar", {
 
           var div = el("div", { "className": "event", "innerText": text });
           if (e.color) {
-            div.style.color = e.color;
+            var c = e.color;
+
+            if (e.fullDayEvent) {
+              div.style.backgroundColor = c;
+              if (c[0] === "#") {
+                var r, g, b, l;
+
+                if (c.length < 7) {
+                  r = parseInt(c[1], 16) * 16 + parseInt(c[1], 16);
+                  g = parseInt(c[2], 16) * 16 + parseInt(c[2], 16);
+                  b = parseInt(c[3], 16) * 16 + parseInt(c[3], 16);
+                } else {
+                  r = parseInt(c.substr(1, 2), 16);
+                  g = parseInt(c.substr(3, 2), 16);
+                  b = parseInt(c.substr(5, 2), 16);
+                }
+
+                l = 0.299 * r + 0.587 * g + 0.114 * b;
+                if (l >= 128) {
+                  div.style.color = "black";
+                }
+              }
+            } else {
+              div.style.color = c;
+            }
           }
 
           dateCells[dayDiff].appendChild(div);
