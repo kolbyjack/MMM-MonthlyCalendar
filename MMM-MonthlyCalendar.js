@@ -166,7 +166,13 @@ Module.register("MMM-MonthlyCalendar", {
             }
             text = formatTime(e.startDate) + " " + text;
           }
-          dateCells[dayDiff].appendChild(el("div", { "className": "event", "innerText": text }));
+
+          var div = el("div", { "className": "event", "innerText": text });
+          if (e.color) {
+            div.style.color = e.color;
+          }
+
+          dateCells[dayDiff].appendChild(div);
         }
       }
     }
