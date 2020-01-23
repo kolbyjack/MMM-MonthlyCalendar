@@ -25,7 +25,11 @@
   padding-right: 3px;
 }
 
-.MMM-MonthlyCalendar .dimmer {
+.MMM-MonthlyCalendar .other-month {
   filter: brightness(45%);
+}
+
+.MMM-MonthlyCalendar .past-date {
+  filter: brightness(75%);
 }
 

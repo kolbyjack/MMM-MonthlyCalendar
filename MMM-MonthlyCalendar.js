@@ -124,14 +124,16 @@ Module.register("MMM-MonthlyCalendar", {
       row = el("tr", { "className": "xsmall" });
 
       for (day = 0; day < 7; ++day, ++cellDate) {
+        var cellText = cellDate;
+
         cell = el("td", { "className": "cell" });
         if (cellDate === today) {
           cell.classList.add("today");
-        }
-        var cellText = cellDate;
-        if (cellDate <= 0 || monthDays < cellDate) {
+        } else if (cellDate <= 0 || monthDays < cellDate) {
           cellText = new Date(now.getFullYear(), now.getMonth(), cellDate).getDate();
-          cell.classList.add("dimmer");
+          cell.classList.add("other-month");
+        } else if (cellDate < today) {
+          cell.classList.add("past-date");
         }
         cell.appendChild(el("div", { "innerHTML": cellText }));
         row.appendChild(cell);
