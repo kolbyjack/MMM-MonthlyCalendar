@@ -116,35 +116,35 @@ Module.register("MMM-MonthlyCalendar", {
     }
     table.appendChild(row);
 
-    var cellDate, monthDays;
+    var cellIndex, monthDays;
     var today = now.getDate();
     var dateCells = [];
 
     if (self.config.mode === "nextFourWeeks") {
-      cellDate = today - now.getDay();
-      monthDays = cellDate + 21;
+      cellIndex = today - now.getDay();
+      monthDays = cellIndex + 21;
     } else {
-      cellDate = 1 - new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+      cellIndex = 1 - new Date(now.getFullYear(), now.getMonth(), 1).getDay();
       monthDays = 32 - new Date(now.getFullYear(), now.getMonth(), 32).getDate();
     }
 
-    for (var week = 0; week < 6 && cellDate <= monthDays; ++week) {
+    for (var week = 0; week < 6 && cellIndex <= monthDays; ++week) {
       row = el("tr", { "className": "xsmall" });
 
-      for (day = 0; day < 7; ++day, ++cellDate) {
-        var cellText = new Date(now.getFullYear(), now.getMonth(), cellDate).getDate();
+      for (day = 0; day < 7; ++day, ++cellIndex) {
+        var cellDate = new Date(now.getFullYear(), now.getMonth(), cellIndex).getDate();
 
         cell = el("td", { "className": "cell" });
-        if (cellDate === today) {
+        if (cellIndex === today) {
           cell.classList.add("today");
-        } else if (cellDate <= 0 || monthDays < cellDate) {
+        } else if (cellIndex !== cellDate && self.config.mode === "currentMonth") {
           cell.classList.add("other-month");
-        } else if (cellDate < today) {
+        } else if (cellIndex < today) {
           cell.classList.add("past-date");
         }
-        cell.appendChild(el("div", { "innerHTML": cellText }));
+        cell.appendChild(el("div", { "innerHTML": cellDate }));
         row.appendChild(cell);
-        dateCells[cellDate] = cell;
+        dateCells[cellIndex] = cell;
       }
 
       table.appendChild(row);
