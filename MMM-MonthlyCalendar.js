@@ -49,6 +49,7 @@ Module.register("MMM-MonthlyCalendar", {
   // Default module config
   defaults: {
     mode: "currentMonth",
+    firstDayOfWeek: "sunday",
     hideCalendars: [],
   },
 
@@ -104,29 +105,42 @@ Module.register("MMM-MonthlyCalendar", {
   },
 
   getDom: function() {
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     var self = this;
     var now = new Date();
     var table = el("table", { "className": "small wrapper" });
     var row = el("tr");
     var cell;
+    var cellIndex, monthDays;
+    var today = now.getDate();
+    var dateCells = [];
+    var startDayOffset = 0;
+
+    while (self.config.firstDayOfWeek.toLowerCase() !== days[0].toLowerCase() && startDayOffset < days.length) {
+      days.push(days.shift());
+      ++startDayOffset;
+    }
+
+    startDayOffset = (startDayOffset % 7);
+
+    if (self.config.mode === "nextFourWeeks") {
+      cellIndex = today - now.getDay() + startDayOffset;
+      while (cellIndex > today) {
+        cellIndex -= 7;
+      }
+      monthDays = cellIndex + 21;
+    } else {
+      cellIndex = 1 - new Date(now.getFullYear(), now.getMonth(), 1).getDay() + startDayOffset;
+      monthDays = 32 - new Date(now.getFullYear(), now.getMonth(), 32).getDate();
+      while (cellIndex > 1) {
+        cellIndex -= 7;
+      }
+    }
 
     for (var day in days) {
       row.appendChild(el("th", { "className": "header", "innerHTML": days[day] }));
     }
     table.appendChild(row);
-
-    var cellIndex, monthDays;
-    var today = now.getDate();
-    var dateCells = [];
-
-    if (self.config.mode === "nextFourWeeks") {
-      cellIndex = today - now.getDay();
-      monthDays = cellIndex + 21;
-    } else {
-      cellIndex = 1 - new Date(now.getFullYear(), now.getMonth(), 1).getDay();
-      monthDays = 32 - new Date(now.getFullYear(), now.getMonth(), 32).getDate();
-    }
 
     for (var week = 0; week < 6 && cellIndex <= monthDays; ++week) {
       row = el("tr", { "className": "xsmall" });

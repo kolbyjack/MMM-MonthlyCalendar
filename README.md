@@ -39,4 +39,5 @@ The following properties can be configured:
 |Option|Default|Description|
 |---|---|---|
 |`mode`|`"currentMonth"`|Whether to show events for the current month, or for the next four weeks.  Valid values are `currentMonth` and `nextFourWeeks`.|
+|`firstDayOfWeek`|`"sunday"`|Which day to use as the start of the week.|
 |`hideCalendars`|`[]`|A list of calendar names to hide from the view.|
