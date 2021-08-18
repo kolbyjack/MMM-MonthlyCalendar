@@ -72,6 +72,7 @@ Module.register("MMM-MonthlyCalendar", {
         e.endDate = new Date(+e.endDate);
 
         if (e.fullDayEvent) {
+          e.startDate = new Date(new Date(e.startDate.getTime() + 60 * 60 * 1000).toDateString());
           e.endDate = new Date(e.endDate.getTime() - 1000);
         }
 
