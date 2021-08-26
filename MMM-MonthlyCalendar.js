@@ -160,7 +160,7 @@ Module.register("MMM-MonthlyCalendar", {
         }
 
         if ((week === 0 && day === 0) || cellDay === 1) {
-          cellDay = `${cellDate.toLocaleString("default", { month: "short" })} ${cellDay}`;
+          cellDay = cellDate.toLocaleString("default", { month: "short", day: "numeric" });
         }
 
         cell.appendChild(el("div", { "innerHTML": cellDay }));
