@@ -147,17 +147,23 @@ Module.register("MMM-MonthlyCalendar", {
       row = el("tr", { "className": "xsmall" });
 
       for (day = 0; day < 7; ++day, ++cellIndex) {
-        var cellDate = new Date(now.getFullYear(), now.getMonth(), cellIndex).getDate();
+        var cellDate = new Date(now.getFullYear(), now.getMonth(), cellIndex);
+        var cellDay = cellDate.getDate();
 
         cell = el("td", { "className": "cell" });
         if (cellIndex === today) {
           cell.classList.add("today");
-        } else if (cellIndex !== cellDate && self.config.mode === "currentMonth") {
+        } else if (cellIndex !== cellDay && self.config.mode === "currentMonth") {
           cell.classList.add("other-month");
         } else if (cellIndex < today) {
           cell.classList.add("past-date");
         }
-        cell.appendChild(el("div", { "innerHTML": cellDate }));
+
+        if ((week === 0 && day === 0) || cellDay === 1) {
+          cellDay = `${cellDate.toLocaleString("default", { month: "short" })} ${cellDay}`;
+        }
+
+        cell.appendChild(el("div", { "innerHTML": cellDay }));
         row.appendChild(cell);
         dateCells[cellIndex] = cell;
       }
