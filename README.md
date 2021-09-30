@@ -26,7 +26,7 @@ modules: [
     module: "MMM-MonthlyCalendar",
     position: "bottom_bar",
     config: { // See "Configuration options" for more information.
-      mode: "nextFourWeeks",
+      mode: "fourWeeks",
     }
   }
 ]
