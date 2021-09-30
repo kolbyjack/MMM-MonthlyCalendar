@@ -148,8 +148,9 @@ Module.register("MMM-MonthlyCalendar", {
       }
     }
 
-    for (var day in days) {
-      row.appendChild(el("th", { "className": "header", "innerHTML": days[day] }));
+    for (var day = 0; day < 7; ++day) {
+      const headerDate = new Date(now.getFullYear(), now.getMonth(), cellIndex + day);
+      row.appendChild(el("th", { "className": "header", "innerHTML": headerDate.toLocaleString("default", { weekday: "long" }) }));
     }
     table.appendChild(row);
 
