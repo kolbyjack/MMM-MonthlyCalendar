@@ -130,6 +130,13 @@ Module.register("MMM-MonthlyCalendar", {
         cellIndex -= 7;
       }
       monthDays = cellIndex + 21;
+    } else if (self.config.mode === "nextOneWeek") {
+      cellIndex = today - now.getDay() + startDayOffset;
+      while (cellIndex > today) {
+        cellIndex -= 7;
+      }
+      monthDays = cellIndex;
+
     } else {
       cellIndex = 1 - new Date(now.getFullYear(), now.getMonth(), 1).getDay() + startDayOffset;
       monthDays = 32 - new Date(now.getFullYear(), now.getMonth(), 32).getDate();
