@@ -107,6 +107,15 @@ Module.register("MMM-MonthlyCalendar", {
 
   getDom: function() {
     var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const weeksToMonthDays = {
+      "nextoneweek": 0,
+      "currentweek": 0,
+      "oneweek": 0,
+      "twoweeks": 7,
+      "threeweeks": 14,
+      "fourweeks": 21,
+      "nextfourweeks": 21,
+    };
     var self = this;
     var now = new Date();
     var table = el("table", { "className": "small wrapper" });
@@ -116,6 +125,7 @@ Module.register("MMM-MonthlyCalendar", {
     var today = now.getDate();
     var dateCells = [];
     var startDayOffset = 0;
+    const mode = self.config.mode.toLowerCase();
 
     while (self.config.firstDayOfWeek.toLowerCase() !== days[0].toLowerCase() && startDayOffset < days.length) {
       days.push(days.shift());
@@ -124,19 +134,12 @@ Module.register("MMM-MonthlyCalendar", {
 
     startDayOffset = (startDayOffset % 7);
 
-    if (self.config.mode === "nextFourWeeks") {
+    if (mode in weeksToMonthDays) {
       cellIndex = today - now.getDay() + startDayOffset;
       while (cellIndex > today) {
         cellIndex -= 7;
       }
-      monthDays = cellIndex + 21;
-    } else if (self.config.mode === "nextOneWeek") {
-      cellIndex = today - now.getDay() + startDayOffset;
-      while (cellIndex > today) {
-        cellIndex -= 7;
-      }
-      monthDays = cellIndex;
-
+      monthDays = cellIndex + weeksToMonthDays[mode];
     } else {
       cellIndex = 1 - new Date(now.getFullYear(), now.getMonth(), 1).getDay() + startDayOffset;
       monthDays = 32 - new Date(now.getFullYear(), now.getMonth(), 32).getDate();
@@ -160,7 +163,7 @@ Module.register("MMM-MonthlyCalendar", {
         cell = el("td", { "className": "cell" });
         if (cellIndex === today) {
           cell.classList.add("today");
-        } else if (cellIndex !== cellDay && self.config.mode === "currentMonth") {
+        } else if (cellIndex !== cellDay && mode === "currentmonth") {
           cell.classList.add("other-month");
         } else if (cellIndex < today) {
           cell.classList.add("past-date");

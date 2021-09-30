@@ -38,6 +38,6 @@ The following properties can be configured:
 
 |Option|Default|Description|
 |---|---|---|
-|`mode`|`"currentMonth"`|Which type of calendar to show.  Possible values are `currentMonth`, `nextOneWeek`, and `nextFourWeeks`.|
+|`mode`|`"currentMonth"`|Which type of calendar to show.  Possible values are `currentMonth`, `currentWeek`, `twoWeeks`, `threeWeeks`, and `fourWeeks`.|
 |`firstDayOfWeek`|`"sunday"`|Which day to use as the start of the week.|
 |`hideCalendars`|`[]`|A list of calendar names to hide from the view.|
