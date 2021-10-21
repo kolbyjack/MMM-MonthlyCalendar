@@ -7,6 +7,10 @@
   text-align: center;
 }
 
+.MMM-MonthlyCalendar .weeknum {
+  width: 3ch;
+}
+
 .MMM-MonthlyCalendar .cell {
   height: 120px;
   text-align: center;

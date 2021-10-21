@@ -40,4 +40,5 @@ The following properties can be configured:
 |---|---|---|
 |`mode`|`"currentMonth"`|Which type of calendar to show.  Possible values are `currentMonth`, `currentWeek`, `twoWeeks`, `threeWeeks`, and `fourWeeks`.|
 |`firstDayOfWeek`|`"sunday"`|Which day to use as the start of the week.|
+|`showWeekNumber`|`false`|Whether to show the week number of the first day of each row.|
 |`hideCalendars`|`[]`|A list of calendar names to hide from the view.|

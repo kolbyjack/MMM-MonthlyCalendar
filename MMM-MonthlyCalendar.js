@@ -25,6 +25,14 @@ function diffDays(a, b) {
   return Math.round((a.getTime() - b.getTime()) / (24 * 60 * 60 * 1000)) + 1;
 }
 
+// Adapted from https://stackoverflow.com/a/6117889/245795
+function getWeekNumber(d) {
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - d.getUTCDay());
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
 function equals(a, b) {
   if (typeof(a) !== typeof(b)) {
     return false;
@@ -50,6 +58,7 @@ Module.register("MMM-MonthlyCalendar", {
   defaults: {
     mode: "currentMonth",
     firstDayOfWeek: "sunday",
+    showWeekNumber: false,
     hideCalendars: [],
   },
 
@@ -148,6 +157,10 @@ Module.register("MMM-MonthlyCalendar", {
       }
     }
 
+    if (self.config.showWeekNumber) {
+      row.appendChild(el("th", { "className": "weeknum" }));
+    }
+
     for (var day = 0; day < 7; ++day) {
       const headerDate = new Date(now.getFullYear(), now.getMonth(), cellIndex + day);
       row.appendChild(el("th", { "className": "header", "innerHTML": headerDate.toLocaleString("default", { weekday: "long" }) }));
@@ -156,6 +169,10 @@ Module.register("MMM-MonthlyCalendar", {
 
     for (var week = 0; week < 6 && cellIndex <= monthDays; ++week) {
       row = el("tr", { "className": "xsmall" });
+      if (self.config.showWeekNumber) {
+        const weekDate = new Date(now.getFullYear(), now.getMonth(), cellIndex);
+        row.appendChild(el("td", { "className": "weeknum", "innerHTML": getWeekNumber(weekDate) }));
+      }
 
       for (day = 0; day < 7; ++day, ++cellIndex) {
         var cellDate = new Date(now.getFullYear(), now.getMonth(), cellIndex);
