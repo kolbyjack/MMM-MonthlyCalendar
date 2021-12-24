@@ -25,8 +25,12 @@
   text-align: left;
   white-space: nowrap;
   overflow-x: hidden;
-  padding-left: 3px;
-  padding-right: 3px;
+  padding-left: 0.5ex;
+  padding-right: 0.5ex;
+}
+
+.MMM-MonthlyCalendar .event-label {
+  padding-right: 0.5ex;
 }
 
 .MMM-MonthlyCalendar .other-month {

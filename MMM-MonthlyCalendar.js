@@ -59,6 +59,7 @@ Module.register("MMM-MonthlyCalendar", {
     mode: "currentMonth",
     firstDayOfWeek: "sunday",
     showWeekNumber: false,
+    displaySymbol: false,
     hideCalendars: [],
   },
 
@@ -203,12 +204,13 @@ Module.register("MMM-MonthlyCalendar", {
     var monthEnd = new Date(now.getFullYear(), now.getMonth(), monthDays, 23, 59, 59);
     for (var i in self.events) {
       var e = self.events[i];
-      var text = e.title;
 
       for (var eventDate = e.startDate; eventDate <= e.endDate; eventDate = addOneDay(eventDate)) {
         var dayDiff = diffDays(eventDate, monthStart);
 
         if (dayDiff in dateCells) {
+          let div = el("div", { "className": "event" });
+
           if (!e.fullDayEvent) {
             function formatTime(d) {
               function z(n) {
@@ -222,10 +224,17 @@ Module.register("MMM-MonthlyCalendar", {
                 return h + ":" + m;
               }
             }
-            text = formatTime(e.startDate) + " " + text;
+            div.appendChild(el("span", { "className": "event-label", "innerText": formatTime(e.startDate) }));
           }
 
-          var div = el("div", { "className": "event", "innerText": text });
+          if (self.config.displaySymbol) {
+            for (let symbol of e.symbol) {
+              div.appendChild(el("span", { "className": `event-label fa fa-${symbol}` }));
+            }
+          }
+
+          div.appendChild(el("span", { "innerText": e.title }));
+
           if (e.color) {
             var c = e.color;
 
