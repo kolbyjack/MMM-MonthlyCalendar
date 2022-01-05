@@ -164,7 +164,7 @@ Module.register("MMM-MonthlyCalendar", {
 
     for (var day = 0; day < 7; ++day) {
       const headerDate = new Date(now.getFullYear(), now.getMonth(), cellIndex + day);
-      row.appendChild(el("th", { "className": "header", "innerHTML": headerDate.toLocaleString("default", { weekday: "long" }) }));
+      row.appendChild(el("th", { "className": "header", "innerHTML": headerDate.toLocaleString(config.language, { weekday: "long" }) }));
     }
     table.appendChild(row);
 
@@ -189,7 +189,7 @@ Module.register("MMM-MonthlyCalendar", {
         }
 
         if ((week === 0 && day === 0) || cellDay === 1) {
-          cellDay = cellDate.toLocaleString("default", { month: "short", day: "numeric" });
+          cellDay = cellDate.toLocaleString(config.language, { month: "short", day: "numeric" });
         }
 
         cell.appendChild(el("div", { "innerHTML": cellDay }));
