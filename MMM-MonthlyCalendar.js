@@ -60,6 +60,7 @@ Module.register("MMM-MonthlyCalendar", {
     firstDayOfWeek: "sunday",
     showWeekNumber: false,
     displaySymbol: false,
+    wrapTitles: false,
     hideCalendars: [],
   },
 
@@ -217,6 +218,9 @@ Module.register("MMM-MonthlyCalendar", {
 
         if (dayDiff in dateCells) {
           let div = el("div", { "className": "event" });
+          if (!self.config.wrapTitles) {
+            div.classList.add("event-nowrap");
+          }
 
           if (!e.fullDayEvent) {
             function formatTime(d) {

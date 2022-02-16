@@ -23,10 +23,14 @@
 
 .MMM-MonthlyCalendar .event {
   text-align: left;
-  white-space: nowrap;
-  overflow-x: hidden;
   padding-left: 0.5ex;
   padding-right: 0.5ex;
+  margin-bottom: 1px;
+}
+
+.MMM-MonthlyCalendar .event-nowrap {
+  white-space: nowrap;
+  overflow-x: hidden;
 }
 
 .MMM-MonthlyCalendar .event-label {
