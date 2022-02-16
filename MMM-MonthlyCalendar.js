@@ -82,13 +82,20 @@ Module.register("MMM-MonthlyCalendar", {
         e.endDate = new Date(+e.endDate);
 
         if (e.fullDayEvent) {
-          e.startDate = new Date(new Date(e.startDate.getTime() + 60 * 60 * 1000).toDateString());
           e.endDate = new Date(e.endDate.getTime() - 1000);
+
+          if (e.startDate > e.endDate) {
+            e.startDate = new Date(e.endDate.getFullYear(), e.endDate.getMonth(), e.endDate.getDate(), 1);
+          } else {
+            e.startDate = new Date(e.startDate.getTime() + 60 * 60 * 1000);
+          }
         }
 
         return e;
       }).filter(e => {
         return !self.config.hideCalendars.includes(e.calendarName);
+      }).sort((a, b) => {
+        return a.startDate - b.startDate;
       });
 
       if (self.updateTimer !== null) {
