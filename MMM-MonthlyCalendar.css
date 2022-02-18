@@ -26,6 +26,7 @@
   padding-left: 0.5ex;
   padding-right: 0.5ex;
   margin-bottom: 1px;
+  border-radius: 4px;
 }
 
 .MMM-MonthlyCalendar .event-nowrap {
