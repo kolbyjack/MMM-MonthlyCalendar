@@ -67,6 +67,7 @@ Module.register("MMM-MonthlyCalendar", {
   start: function() {
     var self = this;
 
+    self.sourceEvents = {};
     self.events = [];
     self.displayedDay = null;
     self.displayedEvents = [];
@@ -74,11 +75,11 @@ Module.register("MMM-MonthlyCalendar", {
     self.skippedUpdateCount = 0;
   },
 
-  notificationReceived: function(notification, payload) {
+  notificationReceived: function(notification, payload, sender) {
     var self = this;
 
     if (notification === "CALENDAR_EVENTS") {
-      self.events = payload.map(e => {
+      self.sourceEvents[sender.identifier] = payload.map(e => {
         e.startDate = new Date(+e.startDate);
         e.endDate = new Date(+e.endDate);
 
@@ -95,8 +96,6 @@ Module.register("MMM-MonthlyCalendar", {
         return e;
       }).filter(e => {
         return !self.config.hideCalendars.includes(e.calendarName);
-      }).sort((a, b) => {
-        return a.startDate - b.startDate;
       });
 
       if (self.updateTimer !== null) {
@@ -107,8 +106,12 @@ Module.register("MMM-MonthlyCalendar", {
       self.updateTimer = setTimeout(() => {
         var today = new Date().setHours(12, 0, 0, 0).valueOf();
 
+        self.events = Object.values(self.sourceEvents).reduce((acc, cur) => acc.concat(cur), [])
+          .sort((a, b) => {
+            return a.startDate - b.startDate;
+          });
+
         if (today !== self.displayedDay || !equals(self.events, self.displayedEvents)) {
-          console.log("MMM-MonthlyCalendar: Skipped " + self.skippedUpdateCount + " updates; " + ((today !== self.displayedDay) ? "new day" : "updated events"));
           self.displayedDay = today;
           self.displayedEvents = self.events;
           self.updateTimer = null;
