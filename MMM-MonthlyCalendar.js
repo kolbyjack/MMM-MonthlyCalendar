@@ -124,7 +124,7 @@ Module.register("MMM-MonthlyCalendar", {
   },
 
   getDom: function() {
-    var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const weeksToMonthDays = {
       "nextoneweek": 0,
       "currentweek": 0,
@@ -134,18 +134,23 @@ Module.register("MMM-MonthlyCalendar", {
       "fourweeks": 21,
       "nextfourweeks": 21,
     };
-    var self = this;
-    var now = new Date();
-    var table = el("table", { "className": "small wrapper" });
+    const self = this;
+    const now = new Date();
+    const table = el("table", { "className": "small wrapper" });
+    const today = now.getDate();
+    const mode = self.config.mode.toLowerCase();
+    let firstDayOfWeek = self.config.firstDayOfWeek.toLowerCase();
     var row = el("tr");
     var cell;
     var cellIndex, monthDays;
-    var today = now.getDate();
     var dateCells = [];
     var startDayOffset = 0;
-    const mode = self.config.mode.toLowerCase();
 
-    while (self.config.firstDayOfWeek.toLowerCase() !== days[0].toLowerCase() && startDayOffset < days.length) {
+    if (firstDayOfWeek === "today") {
+      firstDayOfWeek = days[now.getDay()].toLowerCase();
+    }
+
+    while (firstDayOfWeek !== days[0].toLowerCase() && startDayOffset < days.length) {
       days.push(days.shift());
       ++startDayOffset;
     }

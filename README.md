@@ -40,7 +40,7 @@ The following properties can be configured:
 |---|---|---|
 |`mode`|`"currentMonth"`|Which type of calendar to show.  Possible values are `currentMonth`, `currentWeek`, `twoWeeks`, `threeWeeks`, and `fourWeeks`.|
 |`displaySymbol`|`false`|Whether to show symbols next to events.|
-|`firstDayOfWeek`|`"sunday"`|Which day to use as the start of the week.|
+|`firstDayOfWeek`|`"sunday"`|Which day to use as the start of the week.  Use `"today"` to always show the current day in the first column.|
 |`hideCalendars`|`[]`|A list of calendar names to hide from the view.|
 |`showWeekNumber`|`false`|Whether to show the week number of the first day of each row.|
 |`wrapTitles`|`false`|Whether to allow event titles to wrap across multiple lines or truncate them.|
