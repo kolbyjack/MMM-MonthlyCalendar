@@ -32,6 +32,8 @@ modules: [
 ]
 ````
 
+You will likely also want to set `"broadcastPastEvents": true` in your [calendar module configuration](https://docs.magicmirror.builders/modules/calendar.html#configuration-options) so past events are still displayed.
+
 ## Configuration options
 
 The following properties can be configured:
