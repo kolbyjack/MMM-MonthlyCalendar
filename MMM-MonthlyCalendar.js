@@ -67,6 +67,7 @@ Module.register("MMM-MonthlyCalendar", {
     displaySymbol: false,
     wrapTitles: false,
     hideCalendars: [],
+    luminanceThreshold: 110,
   },
 
   start: function() {
@@ -264,7 +265,7 @@ Module.register("MMM-MonthlyCalendar", {
 
             if (e.fullDayEvent) {
               div.style.backgroundColor = c;
-              if (getLuminance(div.style.backgroundColor) >= 128) {
+              if (getLuminance(div.style.backgroundColor) >= self.config.luminanceThreshold) {
                 div.style.color = "black";
               }
             } else {
