@@ -1,6 +1,8 @@
 # Module: MMM-MonthlyCalendar
 The module allows you to view your calendar events in a monthly calendar view.
 
+![Screenshot of module in use.](./screenshot.png)
+
 ## Installation
 
 In your terminal, go to your MagicMirror's Module folder:
