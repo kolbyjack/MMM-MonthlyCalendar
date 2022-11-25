@@ -238,15 +238,12 @@ Module.register("MMM-MonthlyCalendar", {
 
           if (!e.fullDayEvent) {
             function formatTime(d) {
-              function z(n) {
-                return (n < 10 ? "0" : "") + n;
-              }
               var h = d.getHours();
-              var m = d.getMinutes();
+              var m = d.getMinutes().toString().padStart(2, "0");
               if (config.timeFormat === 12) {
-                return (h % 12 || 12) + (m > 0 ? `:${z(m)}` : "") + (h < 12 ? "am" : "pm");
+                return (h % 12 || 12) + (m > 0 ? `:${m}` : "") + (h < 12 ? "am" : "pm");
               } else {
-                return h + ":" + z(m);
+                return `${h}:${m}`;
               }
             }
             div.appendChild(el("span", { "className": "event-label", "innerText": formatTime(e.startDate) }));
