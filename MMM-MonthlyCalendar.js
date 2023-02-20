@@ -173,6 +173,11 @@ Module.register("MMM-MonthlyCalendar", {
       }
       monthDays = cellIndex + weeksToMonthDays[mode];
     } else {
+      if (mode === "lastmonth") {
+        now.setMonth(now.getMonth() - 1);
+      } else if (mode === "nextmonth") {
+        now.setMonth(now.getMonth() + 1);
+      }
       cellIndex = 1 - new Date(now.getFullYear(), now.getMonth(), 1).getDay() + startDayOffset;
       monthDays = 32 - new Date(now.getFullYear(), now.getMonth(), 32).getDate();
       while (cellIndex > 1) {
@@ -202,7 +207,9 @@ Module.register("MMM-MonthlyCalendar", {
         var cellDay = cellDate.getDate();
 
         cell = el("td", { "className": "cell" });
-        if (cellIndex === today) {
+        if (["lastmonth", "nextmonth"].includes(mode)) {
+          // Do nothing
+        } else if (cellIndex === today) {
           cell.classList.add("today");
         } else if (cellIndex !== cellDay && mode === "currentmonth") {
           cell.classList.add("other-month");
