@@ -54,8 +54,12 @@ function equals(a, b) {
 }
 
 function getLuminance(color) {
-  const [line, r, g, b] = color.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
-  return 0.299 * +r + 0.587 * +g + 0.114 * +b;
+  try {
+    const [r, g, b, a, s, d] = color.match(/([0-9.]+)/g);
+    return 0.299 * +r + 0.587 * +g + 0.114 * +b;
+  } catch {
+    return 0;
+  }
 }
 
 Module.register("MMM-MonthlyCalendar", {
