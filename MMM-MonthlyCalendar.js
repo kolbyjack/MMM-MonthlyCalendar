@@ -85,11 +85,16 @@ Module.register("MMM-MonthlyCalendar", {
     self.skippedUpdateCount = 0;
   },
 
-  notificationReceived: function(notification, payload, sender) {
-    var self = this;
+	notificationReceived: function(notification, payload, sender) {
+	var self = this;
 
-    if (notification === "CALENDAR_EVENTS") {
-      self.sourceEvents[sender.identifier] = payload.map(e => {
+	if (notification === "CALENDAR_EVENTS") {
+		if (!Array.isArray(payload)) {
+		console.error("Payload is not an array:", payload);
+		return;
+		}
+		
+		self.sourceEvents[sender.identifier] = payload.map(e => {
         e.startDate = new Date(+e.startDate);
         e.endDate = new Date(+e.endDate);
 
@@ -104,9 +109,9 @@ Module.register("MMM-MonthlyCalendar", {
         }
 
         return e;
-      }).filter(e => {
-        return !self.config.hideCalendars.includes(e.calendarName);
-      });
+		}).filter(e => {
+		return !self.config.hideCalendars.includes(e.calendarName);
+		});
 
       if (self.updateTimer !== null) {
         clearTimeout(self.updateTimer);
