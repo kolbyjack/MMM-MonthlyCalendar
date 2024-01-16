@@ -89,6 +89,11 @@ Module.register("MMM-MonthlyCalendar", {
     var self = this;
 
     if (notification === "CALENDAR_EVENTS") {
+      if (!Array.isArray(payload)) {
+        console.error("Payload is not an array:", payload);
+        return;
+      }
+
       self.sourceEvents[sender.identifier] = payload.map(e => {
         e.startDate = new Date(+e.startDate);
         e.endDate = new Date(+e.endDate);
