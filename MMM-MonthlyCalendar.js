@@ -70,6 +70,7 @@ Module.register("MMM-MonthlyCalendar", {
     showWeekNumber: false,
     displaySymbol: false,
     wrapTitles: false,
+    hideDuplicateEvents: false,
     hideCalendars: [],
     luminanceThreshold: 110,
   },
@@ -123,18 +124,36 @@ Module.register("MMM-MonthlyCalendar", {
 
         self.events = Object.values(self.sourceEvents).reduce((acc, cur) => acc.concat(cur), [])
           .sort((a, b) => {
-            return a.startDate - b.startDate;
+            if (a.startDate != b.startDate) {
+              return a.startDate - b.startDate;
+            }
+
+            if (a.endDate != b.endDate) {
+              return a.endDate - b.endDate;
+            }
+
+            if (a.fullDayEvent != b.fullDayEvent) {
+              return a.fullDayEvent - b.fullDayEvent;
+            }
+
+            return a.title.localeCompare(b.title);
           });
 
-        if (today !== self.displayedDay || !equals(self.events, self.displayedEvents)) {
-          self.displayedDay = today;
-          self.displayedEvents = self.events;
-          self.updateTimer = null;
-          self.skippedUpdateCount = 0;
-          self.updateDom();
-        }
-      }, 5000);
-    }
+          if (self.config.hideDuplicateEvents) {
+            self.events = self.events.filter((entry, index, events) => {
+              return (index === 0) || (!equals(entry, events[index - 1]));
+            });
+          }
+
+          if (today !== self.displayedDay || !equals(self.events, self.displayedEvents)) {
+            self.displayedDay = today;
+            self.displayedEvents = self.events;
+            self.updateTimer = null;
+            self.skippedUpdateCount = 0;
+            self.updateDom();
+          }
+        }, 5000);
+      }
   },
 
   getStyles: function () {
@@ -240,9 +259,7 @@ Module.register("MMM-MonthlyCalendar", {
 
     var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     var monthEnd = new Date(now.getFullYear(), now.getMonth(), monthDays, 23, 59, 59);
-    for (var i in self.events) {
-      var e = self.events[i];
-
+    for (let e of self.events) {
       for (var eventDate = e.startDate; eventDate <= e.endDate; eventDate = addOneDay(eventDate)) {
         var dayDiff = diffDays(eventDate, monthStart);
 
