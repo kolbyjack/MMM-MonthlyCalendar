@@ -38,6 +38,10 @@
   padding-right: 0.5ex;
 }
 
+.MMM-MonthlyCalendar .event-lightbackground {
+  color: black;
+}
+
 .MMM-MonthlyCalendar .other-month {
   filter: brightness(45%);
 }

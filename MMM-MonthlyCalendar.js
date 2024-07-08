@@ -279,7 +279,9 @@ Module.register("MMM-MonthlyCalendar", {
             if (e.fullDayEvent) {
               div.style.backgroundColor = c;
               if (getLuminance(div.style.backgroundColor) >= self.config.luminanceThreshold) {
-                div.style.color = "black";
+                div.className += " event-lightbackground";
+              } else {
+                div.className += " event-darkbackground";
               }
             } else {
               div.style.color = c;
