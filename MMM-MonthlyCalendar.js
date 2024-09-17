@@ -141,7 +141,10 @@ Module.register("MMM-MonthlyCalendar", {
 
           if (self.config.hideDuplicateEvents) {
             self.events = self.events.filter((entry, index, events) => {
-              return (index === 0) || (!equals(entry, events[index - 1]));
+              return (index === 0) ||
+                (!equals(entry.title, events[index - 1].title)
+                  && !equals(parseInt(entry.startDate), parseInt(events[index - 1].startDate))
+                  && !equals(parseInt(entry.endDate), parseInt(events[index - 1].endDate)));
             });
           }
 
