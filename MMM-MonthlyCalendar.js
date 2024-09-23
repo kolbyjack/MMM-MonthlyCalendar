@@ -72,6 +72,7 @@ Module.register("MMM-MonthlyCalendar", {
     wrapTitles: false,
     hideCalendars: [],
     luminanceThreshold: 110,
+    EventColor:[{keyWord:"",color:""}]
   },
 
   start: function() {
@@ -107,6 +108,10 @@ Module.register("MMM-MonthlyCalendar", {
             e.startDate = new Date(e.startDate.getTime() + 60 * 60 * 1000);
           }
         }
+
+        var customEventColor = self.config.EventColor.filter(item => e.title.includes(item.keyWord));
+        if(customEventColor.length > 0)
+          e.color = customEventColor[0].color;
 
         return e;
       }).filter(e => {
@@ -205,7 +210,7 @@ Module.register("MMM-MonthlyCalendar", {
     table.appendChild(row);
 
     for (var week = 0; week < 6 && cellIndex <= monthDays; ++week) {
-      row = el("tr", { "className": "xsmall" });
+      row = el("tr", { "className": "small" });
       if (self.config.showWeekNumber) {
         const weekDate = new Date(now.getFullYear(), now.getMonth(), cellIndex);
         row.appendChild(el("td", { "className": "weeknum", "innerHTML": getWeekNumber(weekDate) }));
