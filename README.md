@@ -49,3 +49,4 @@ The following properties can be configured:
 |`luminanceThreshold`|`110`|The luminance value above which full-day event text will be drawn black.|
 |`showWeekNumber`|`false`|Whether to show the week number of the first day of each row.|
 |`wrapTitles`|`false`|Whether to allow event titles to wrap across multiple lines or truncate them.|
+|`multiDayEndingTimeSeparator`|`" until "`|String that is used in displaying the last day of events that span multiple days and do have an end time.|
