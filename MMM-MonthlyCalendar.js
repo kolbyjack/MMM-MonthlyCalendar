@@ -33,6 +33,16 @@ function getWeekNumber(d) {
   return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
 }
 
+function formatEventTime(d) {
+  var h = d.getHours();
+  var m = d.getMinutes().toString().padStart(2, "0");
+  if (config.timeFormat === 12) {
+    return (h % 12 || 12) + (m > 0 ? `:${m}` : "") + (h < 12 ? "am" : "pm");
+  } else {
+    return `${h}:${m}`;
+  }
+}
+
 function equals(a, b) {
   if (typeof(a) !== typeof(b)) {
     return false;
@@ -72,6 +82,7 @@ Module.register("MMM-MonthlyCalendar", {
     wrapTitles: false,
     hideCalendars: [],
     luminanceThreshold: 110,
+    multiDayEndingTimeSeparator: " until "
   },
 
   start: function() {
@@ -105,6 +116,16 @@ Module.register("MMM-MonthlyCalendar", {
             e.startDate = new Date(e.endDate.getFullYear(), e.endDate.getMonth(), e.endDate.getDate(), 1);
           } else {
             e.startDate = new Date(e.startDate.getTime() + 60 * 60 * 1000);
+          }
+        }
+        // If not full day event, could still be multiple days.
+        // https://github.com/kolbyjack/MMM-MonthlyCalendar/issues/42
+        else {
+          // If time is longer than 24 hours
+          // Could instead check if start and end times are on different days?
+          if (((e.endDate.getTime() - e.startDate.getTime()) / 1000) > 86400) {
+            e.multiDayEvent = true;
+            //console.log(e.title + "is longer" + e.multiDayEvent);
           }
         }
 
@@ -252,17 +273,10 @@ Module.register("MMM-MonthlyCalendar", {
             div.classList.add("event-nowrap");
           }
 
-          if (!e.fullDayEvent) {
-            function formatTime(d) {
-              var h = d.getHours();
-              var m = d.getMinutes().toString().padStart(2, "0");
-              if (config.timeFormat === 12) {
-                return (h % 12 || 12) + (m > 0 ? `:${m}` : "") + (h < 12 ? "am" : "pm");
-              } else {
-                return `${h}:${m}`;
-              }
-            }
-            div.appendChild(el("span", { "className": "event-label", "innerText": formatTime(e.startDate) }));
+          // Print the time if it is NOT a full day event.
+          // And if it is NOT the 2nd or later day of a multi-day event.
+          if (!e.fullDayEvent && !(e.multiDayEvent && (eventDate > e.startDate))) {
+            div.appendChild(el("span", { "className": "event-label", "innerText": formatEventTime(e.startDate) }));
           }
 
           if (self.config.displaySymbol) {
@@ -273,10 +287,15 @@ Module.register("MMM-MonthlyCalendar", {
 
           div.appendChild(el("span", { "innerText": e.title }));
 
+          // Print ending time if last day of multi-day event.
+          if (e.multiDayEvent && (eventDate.toDateString() == e.endDate.toDateString())) {
+            div.appendChild(el("span", { "className": "event-label", "innerText": self.config.multiDayEndingTimeSeparator + formatEventTime(e.endDate) }));
+          }
+
           if (e.color) {
             var c = e.color;
 
-            if (e.fullDayEvent) {
+            if (e.fullDayEvent || e.multiDayEvent) {
               div.style.backgroundColor = c;
               if (getLuminance(div.style.backgroundColor) >= self.config.luminanceThreshold) {
                 div.className += " event-lightbackground";
