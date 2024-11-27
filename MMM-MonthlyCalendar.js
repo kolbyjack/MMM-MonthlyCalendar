@@ -167,7 +167,6 @@ Module.register("MMM-MonthlyCalendar", {
       }, 5000);
     }
   },
-  ,
 
   getStyles: function () {
     return ["MMM-MonthlyCalendar.css"];
