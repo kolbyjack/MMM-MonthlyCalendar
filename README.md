@@ -53,4 +53,4 @@ The following properties can be configured:
 | `multiDayEndingTimeSeparator` | `" until "`    | String that is used in displaying the last day of events that span multiple days and do have an end time.                                                |
 
 ### Notes on `hideDuplicateEvents`
-The `hideDuplicateEvents` option is enabled by default (`true`). This ensures that events with identical details (title, start time, end time, and calendar name) are displayed only once. If you want to display all occurrences of such events, set this option to `false` in your configuration.
+The `hideDuplicateEvents` option is enabled by default (`true`). This ensures that events with identical details (title, start time, and end time) are displayed only once. If you want to display all occurrences of such events, set this option to `false` in your configuration.
