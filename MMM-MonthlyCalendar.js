@@ -121,6 +121,11 @@ Module.register("MMM-MonthlyCalendar", {
             }
           }
 
+          // If not a full-day event, check if it spans multiple days
+          if (((e.endDate.getTime() - e.startDate.getTime()) / 1000) > 86400) {
+            e.multiDayEvent = true;
+          }
+
           return e;
         })
         .filter((e) => !self.config.hideCalendars.includes(e.calendarName));
@@ -147,7 +152,7 @@ Module.register("MMM-MonthlyCalendar", {
         if (self.config.hideDuplicateEvents) {
           const seenEvents = new Map(); // Hash table for deduplication
           self.events = self.events.filter((event) => {
-            const key = `${event.title}|${event.startDate.valueOf()}|${event.endDate.valueOf()}|${event.calendarName}`;
+            const key = `${event.title}|${event.startDate.valueOf()}|${event.endDate.valueOf()}`;
             if (seenEvents.has(key)) {
               return false; // Duplicate
             }
