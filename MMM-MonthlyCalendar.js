@@ -18,7 +18,7 @@ function addOneDay(d) {
 function diffDays(a, b) {
   a = new Date(a);
   b = new Date(b);
-  
+
   a.setHours(0, 0, 0, 0);
   b.setHours(0, 0, 0, 0);
 
@@ -44,7 +44,7 @@ function formatEventTime(d) {
 }
 
 function equals(a, b) {
-  if (typeof(a) !== typeof(b)) {
+  if (typeof (a) !== typeof (b)) {
     return false;
   }
 
@@ -82,10 +82,11 @@ Module.register("MMM-MonthlyCalendar", {
     wrapTitles: false,
     hideCalendars: [],
     luminanceThreshold: 110,
-    multiDayEndingTimeSeparator: " until "
+    multiDayEndingTimeSeparator: " until ",
+    hideDuplicateEvents: true
   },
 
-  start: function() {
+  start: function () {
     var self = this;
 
     self.sourceEvents = {};
@@ -96,7 +97,7 @@ Module.register("MMM-MonthlyCalendar", {
     self.skippedUpdateCount = 0;
   },
 
-  notificationReceived: function(notification, payload, sender) {
+  notificationReceived: function (notification, payload, sender) {
     var self = this;
 
     if (notification === "CALENDAR_EVENTS") {
@@ -105,48 +106,63 @@ Module.register("MMM-MonthlyCalendar", {
         return;
       }
 
-      self.sourceEvents[sender.identifier] = payload.map(e => {
-        e.startDate = new Date(+e.startDate);
-        e.endDate = new Date(+e.endDate);
+      // Step 1: Parse and filter incoming events
+      self.sourceEvents[sender.identifier] = payload
+        .map((e) => {
+          e.startDate = new Date(+e.startDate);
+          e.endDate = new Date(+e.endDate);
 
-        if (e.fullDayEvent) {
-          e.endDate = new Date(e.endDate.getTime() - 1000);
+          if (e.fullDayEvent) {
+            e.endDate = new Date(e.endDate.getTime() - 1000);
 
-          if (e.startDate > e.endDate) {
-            e.startDate = new Date(e.endDate.getFullYear(), e.endDate.getMonth(), e.endDate.getDate(), 1);
-          } else {
-            e.startDate = new Date(e.startDate.getTime() + 60 * 60 * 1000);
+            if (e.startDate > e.endDate) {
+              e.startDate = new Date(e.endDate.getFullYear(), e.endDate.getMonth(), e.endDate.getDate(), 1);
+            } else {
+              e.startDate = new Date(e.startDate.getTime() + 60 * 60 * 1000);
+            }
           }
-        }
-        // If not full day event, could still be multiple days.
-        // https://github.com/kolbyjack/MMM-MonthlyCalendar/issues/42
-        else {
-          // If time is longer than 24 hours
-          // Could instead check if start and end times are on different days?
+
+          // If not a full-day event, check if it spans multiple days
           if (((e.endDate.getTime() - e.startDate.getTime()) / 1000) > 86400) {
             e.multiDayEvent = true;
-            //console.log(e.title + "is longer" + e.multiDayEvent);
           }
-        }
 
-        return e;
-      }).filter(e => {
-        return !self.config.hideCalendars.includes(e.calendarName);
-      });
+          return e;
+        })
+        .filter((e) => !self.config.hideCalendars.includes(e.calendarName));
 
+      // Step 2: Schedule update
       if (self.updateTimer !== null) {
         clearTimeout(self.updateTimer);
         ++self.skippedUpdateCount;
       }
 
       self.updateTimer = setTimeout(() => {
-        var today = new Date().setHours(12, 0, 0, 0).valueOf();
+        const today = new Date().setHours(12, 0, 0, 0).valueOf();
 
-        self.events = Object.values(self.sourceEvents).reduce((acc, cur) => acc.concat(cur), [])
+        // Step 3: Combine and sort events
+        self.events = Object.values(self.sourceEvents)
+          .flat()
           .sort((a, b) => {
-            return a.startDate - b.startDate;
+            if (a.startDate != b.startDate) return a.startDate - b.startDate;
+            if (a.endDate != b.endDate) return a.endDate - b.endDate;
+            return a.title.localeCompare(b.title);
           });
 
+        // Step 4: Remove duplicates using a hash table
+        if (self.config.hideDuplicateEvents) {
+          const seenEvents = new Map(); // Hash table for deduplication
+          self.events = self.events.filter((event) => {
+            const key = `${event.title}|${event.startDate.valueOf()}|${event.endDate.valueOf()}`;
+            if (seenEvents.has(key)) {
+              return false; // Duplicate
+            }
+            seenEvents.set(key, true);
+            return true; // Unique
+          });
+        }
+
+        // Step 5: Update DOM if needed
         if (today !== self.displayedDay || !equals(self.events, self.displayedEvents)) {
           self.displayedDay = today;
           self.displayedEvents = self.events;
@@ -162,7 +178,7 @@ Module.register("MMM-MonthlyCalendar", {
     return ["MMM-MonthlyCalendar.css"];
   },
 
-  getDom: function() {
+  getDom: function () {
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const weeksToMonthDays = {
       "nextoneweek": 0,
