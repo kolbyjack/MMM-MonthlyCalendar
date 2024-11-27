@@ -82,7 +82,8 @@ Module.register("MMM-MonthlyCalendar", {
     wrapTitles: false,
     hideCalendars: [],
     luminanceThreshold: 110,
-    multiDayEndingTimeSeparator: " until "
+    multiDayEndingTimeSeparator: " until ",
+    hideDuplicateEvents: true
   },
 
   start: function () {
