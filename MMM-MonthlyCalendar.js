@@ -330,5 +330,4 @@ Module.register("MMM-MonthlyCalendar", {
 
     return table;
   },
-
 });
