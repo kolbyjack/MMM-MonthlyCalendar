@@ -46,11 +46,11 @@ The following properties can be configured:
 | `displaySymbol`            | `false`        | Whether to show symbols next to events.                                                                                                                  |
 | `firstDayOfWeek`           | `"sunday"`     | Which day to use as the start of the week. Use `"today"` to always show the current day in the first column.                                              |
 | `hideCalendars`            | `[]`           | A list of calendar names to hide from the view.                                                                                                           |
-| `hideDuplicateEvents`      | `true`         | Whether to remove duplicate events from the view. Events are considered duplicates if they have the same title, start time, end time, and calendar name.  |
+| `hideDuplicateEvents`      | `true`         | Whether to remove duplicate events from the view. Events are considered duplicates if they have the same title, start time, and end time.  |
 | `luminanceThreshold`       | `110`          | The luminance value above which full-day event text will be drawn black.                                                                                  |
 | `showWeekNumber`           | `false`        | Whether to show the week number of the first day of each row.                                                                                            |
 | `wrapTitles`               | `false`        | Whether to allow event titles to wrap across multiple lines or truncate them.                                                                             |
 | `multiDayEndingTimeSeparator` | `" until "`    | String that is used in displaying the last day of events that span multiple days and do have an end time.                                                |
 
 ### Notes on `hideDuplicateEvents`
-The `hideDuplicateEvents` option is enabled by default (`true`). This ensures that events with identical details (title, start time, end time, and calendar name) are displayed only once. If you want to display all occurrences of such events, set this option to `false` in your configuration.
+The `hideDuplicateEvents` option is enabled by default (`true`). This ensures that events with identical details (title, start time, and end time) are displayed only once. If you want to display all occurrences of such events, set this option to `false` in your configuration.
