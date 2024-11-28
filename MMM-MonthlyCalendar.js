@@ -237,13 +237,7 @@ Module.register("MMM-MonthlyCalendar", {
 
     for (var day = 0; day < 7; ++day) {
       const headerDate = new Date(now.getFullYear(), now.getMonth(), cellIndex + day);
-      const isToday = day === now.getDay(); // Check if it's the current day
-      row.appendChild(
-        el("th", {
-          className: `header${isToday ? " today-header" : ""}`, // Add a specific class for today
-          innerHTML: headerDate.toLocaleString(config.language, { weekday: "long" }),
-        })
-      );
+      row.appendChild(el("th", { "className": "header", "innerHTML": headerDate.toLocaleString(config.language, { weekday: "long" }) }));
     }
     table.appendChild(row);
 
