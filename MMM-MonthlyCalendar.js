@@ -237,7 +237,13 @@ Module.register("MMM-MonthlyCalendar", {
 
     for (var day = 0; day < 7; ++day) {
       const headerDate = new Date(now.getFullYear(), now.getMonth(), cellIndex + day);
-      row.appendChild(el("th", { "className": "header", "innerHTML": headerDate.toLocaleString(config.language, { weekday: "long" }) }));
+      const isToday = day === now.getDay(); // Check if it's the current day
+      row.appendChild(
+        el("th", {
+          className: `header${isToday ? " today-header" : ""}`, // Add a specific class for today
+          innerHTML: headerDate.toLocaleString(config.language, { weekday: "long" }),
+        })
+      );
     }
     table.appendChild(row);
 
@@ -331,3 +337,4 @@ Module.register("MMM-MonthlyCalendar", {
     return table;
   },
 });
+

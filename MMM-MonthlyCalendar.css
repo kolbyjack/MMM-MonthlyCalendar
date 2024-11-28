@@ -21,6 +21,11 @@
   background-color: rgba(192, 192, 192, 0.2);
 }
 
+.today-header {
+  font-weight: bold;
+  color: white;
+}
+
 .MMM-MonthlyCalendar .today div:first-child {
   color: white;
   font-weight: bold;
