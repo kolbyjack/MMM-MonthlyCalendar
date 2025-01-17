@@ -35,6 +35,7 @@ modules: [
 ```
 
 You will likely also want to set `"broadcastPastEvents": true` in your [calendar module configuration](https://docs.magicmirror.builders/modules/calendar.html#configuration-options) so past events are still displayed.
+
 Also, for version 2.30.0 (January 1st 2025 release) of MagicMirror there is a bug that probably requires an additional setting in the **calendar** module configuration: `maximumEntries: 10000` (not in the MMM-MonthlyCalendar configuration).  See [issue #48][i48].
 
 ## Configuration options
