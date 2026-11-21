@@ -113,17 +113,31 @@ Module.register("MMM-MonthlyCalendar", {
           e.endDate = new Date(+e.endDate);
 
           if (e.fullDayEvent) {
-            e.endDate = new Date(e.endDate.getTime() - 1000);
-
-            if (e.startDate > e.endDate) {
-              e.startDate = new Date(e.endDate.getFullYear(), e.endDate.getMonth(), e.endDate.getDate(), 1);
+            // Calendar all-day events use an exclusive end date. Normalize
+            // midnight to the final included day so date-based layout treats
+            // the event's last day as part of the event.
+            if (
+              e.endDate.getHours() === 0 &&
+              e.endDate.getMinutes() === 0 &&
+              e.endDate.getSeconds() === 0 &&
+              e.endDate.getMilliseconds() === 0
+            ) {
+              e.endDate = new Date(
+                e.endDate.getFullYear(),
+                e.endDate.getMonth(),
+                e.endDate.getDate() - 1,
+                23, 59, 59, 999
+              );
             } else {
-              e.startDate = new Date(e.startDate.getTime() + 60 * 60 * 1000);
+              // Preserve the existing inclusive-end handling for feeds that
+              // provide an end time other than midnight.
+              e.endDate = new Date(e.endDate.getTime() - 1000);
             }
           }
 
-          // If not a full-day event, check if it spans multiple days
-          if (((e.endDate.getTime() - e.startDate.getTime()) / 1000) > 86400) {
+          // Treat events on different calendar dates as multi-day, even when
+          // their elapsed duration is less than 24 hours.
+          if (e.startDate.toDateString() !== e.endDate.toDateString()) {
             e.multiDayEvent = true;
           }
 
@@ -180,154 +194,126 @@ Module.register("MMM-MonthlyCalendar", {
 
   getDom: function () {
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const weeksToMonthDays = {
-      "nextoneweek": 0,
-      "currentweek": 0,
-      "oneweek": 0,
-      "twoweeks": 7,
-      "threeweeks": 14,
-      "fourweeks": 21,
-      "nextfourweeks": 21,
-    };
+    const weeksToMonthDays = { nextoneweek: 0, currentweek: 0, oneweek: 0, twoweeks: 7, threeweeks: 14, fourweeks: 21, nextfourweeks: 21 };
     const self = this;
     const now = new Date();
-    const table = el("table", { "className": "small wrapper" });
-    const today = now.getDate();
     const mode = self.config.mode.toLowerCase();
     let firstDayOfWeek = self.config.firstDayOfWeek.toLowerCase();
-    var row = el("tr");
-    var cell;
-    var cellIndex, monthDays;
-    var dateCells = [];
-    var startDayOffset = 0;
+    let offset = 0;
+    if (firstDayOfWeek === "today") firstDayOfWeek = days[now.getDay()].toLowerCase();
+    while (days[0].toLowerCase() !== firstDayOfWeek && offset < 7) { days.push(days.shift()); ++offset; }
 
-    if (firstDayOfWeek === "today") {
-      firstDayOfWeek = days[now.getDay()].toLowerCase();
-    }
-
-    while (firstDayOfWeek !== days[0].toLowerCase() && startDayOffset < days.length) {
-      days.push(days.shift());
-      ++startDayOffset;
-    }
-
-    startDayOffset = (startDayOffset % 7);
-
+    let monthDays, firstCell, weekCount;
     if (mode in weeksToMonthDays) {
-      cellIndex = today - now.getDay() + startDayOffset;
-      while (cellIndex > today) {
-        cellIndex -= 7;
-      }
-      monthDays = cellIndex + weeksToMonthDays[mode];
+      firstCell = now.getDate() - now.getDay() + offset;
+      while (firstCell > now.getDate()) firstCell -= 7;
+      monthDays = firstCell + weeksToMonthDays[mode];
+      weekCount = Math.floor((monthDays - firstCell) / 7) + 1;
     } else {
-      if (mode === "lastmonth") {
-        now.setMonth(now.getMonth() - 1);
-      } else if (mode === "nextmonth") {
-        now.setMonth(now.getMonth() + 1);
-      }
-      cellIndex = 1 - new Date(now.getFullYear(), now.getMonth(), 1).getDay() + startDayOffset;
+      if (mode === "lastmonth") now.setMonth(now.getMonth() - 1);
+      else if (mode === "nextmonth") now.setMonth(now.getMonth() + 1);
+      firstCell = 1 - new Date(now.getFullYear(), now.getMonth(), 1).getDay() + offset;
+      while (firstCell > 1) firstCell -= 7;
       monthDays = 32 - new Date(now.getFullYear(), now.getMonth(), 32).getDate();
-      while (cellIndex > 1) {
-        cellIndex -= 7;
+      weekCount = Math.floor((monthDays - firstCell) / 7) + 1;
+    }
+
+    const grid = el("div", { className: "calendar-grid xsmall" });
+    grid.style.setProperty("--calendar-columns", self.config.showWeekNumber ? "3ch repeat(7, minmax(0, 1fr))" : "repeat(7, minmax(0, 1fr))");
+    const header = el("div", { className: "calendar-header small" });
+    if (self.config.showWeekNumber) header.appendChild(el("div", { className: "weeknum" }));
+    for (let d = 0; d < 7; d++) {
+      const hd = new Date(now.getFullYear(), now.getMonth(), firstCell + d);
+      header.appendChild(el("div", { className: "header", innerText: hd.toLocaleString(config.language, { weekday: "long" }) }));
+    }
+    grid.appendChild(header);
+
+    const ordinal = (date) => Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000;
+    const weeks = [];
+    let cursor = new Date(now.getFullYear(), now.getMonth(), firstCell);
+    for (let w = 0; w < Math.min(6, weekCount); w++) {
+      const week = { start: new Date(cursor), dates: [], events: [] };
+      for (let d = 0; d < 7; d++) {
+        const date = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() + d);
+        week.dates.push(date);
       }
+      weeks.push(week);
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() + 7);
     }
 
-    if (self.config.showWeekNumber) {
-      row.appendChild(el("th", { "className": "weeknum" }));
-    }
-
-    for (var day = 0; day < 7; ++day) {
-      const headerDate = new Date(now.getFullYear(), now.getMonth(), cellIndex + day);
-      row.appendChild(el("th", { "className": "header", "innerHTML": headerDate.toLocaleString(config.language, { weekday: "long" }) }));
-    }
-    table.appendChild(row);
-
-    for (var week = 0; week < 6 && cellIndex <= monthDays; ++week) {
-      row = el("tr", { "className": "xsmall" });
-      if (self.config.showWeekNumber) {
-        const weekDate = new Date(now.getFullYear(), now.getMonth(), cellIndex);
-        row.appendChild(el("td", { "className": "weeknum", "innerHTML": getWeekNumber(weekDate) }));
-      }
-
-      for (day = 0; day < 7; ++day, ++cellIndex) {
-        var cellDate = new Date(now.getFullYear(), now.getMonth(), cellIndex);
-        var cellDay = cellDate.getDate();
-
-        cell = el("td", { "className": "cell" });
-        if (["lastmonth", "nextmonth"].includes(mode)) {
-          // Do nothing
-        } else if (cellIndex === today) {
-          cell.classList.add("today");
-        } else if (cellIndex !== cellDay && mode === "currentmonth") {
-          cell.classList.add("other-month");
-        } else if (cellIndex < today) {
-          cell.classList.add("past-date");
+    const todayOrdinal = ordinal(new Date());
+    for (const week of weeks) {
+      const row = el("div", { className: "week-row" });
+      row.style.setProperty("--calendar-columns", self.config.showWeekNumber ? "3ch repeat(7, minmax(0, 1fr))" : "repeat(7, minmax(0, 1fr))");
+      if (self.config.showWeekNumber) row.appendChild(el("div", { className: "weeknum", innerText: getWeekNumber(week.start) }));
+      for (let d = 0; d < 7; d++) {
+        const date = week.dates[d];
+        const cell = el("div", { className: "date-cell" });
+        const dayNumber = date.getDate();
+        if (!["lastmonth", "nextmonth"].includes(mode)) {
+          if (ordinal(date) === todayOrdinal) cell.classList.add("today");
+          else if (date.getMonth() !== now.getMonth() && mode === "currentmonth") cell.classList.add("other-month");
+          else if (ordinal(date) < todayOrdinal) cell.classList.add("past-date");
         }
-
-        if ((week === 0 && day === 0) || cellDay === 1) {
-          cellDay = cellDate.toLocaleString(config.language, { month: "short", day: "numeric" });
-        }
-
-        cell.appendChild(el("div", { "innerHTML": cellDay }));
+        const label = (d === 0 || dayNumber === 1)
+          ? date.toLocaleString(config.language, { month: "short", day: "numeric" })
+          : dayNumber;
+        cell.appendChild(el("div", { className: "date-label", innerText: label }));
         row.appendChild(cell);
-        dateCells[cellIndex] = cell;
       }
 
-      table.appendChild(row);
-    }
+      const segments = [];
+      for (const e of self.events) {
+        const eventStart = ordinal(e.startDate);
+        const eventEnd = ordinal(e.endDate);
+        const weekStart = ordinal(week.dates[0]);
+        const weekEnd = ordinal(week.dates[6]);
+        if (eventEnd < weekStart || eventStart > weekEnd) continue;
+        const first = Math.max(0, eventStart - weekStart);
+        const last = Math.min(6, eventEnd - weekStart);
+        segments.push({ event: e, first, last });
+      }
 
-    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    var monthEnd = new Date(now.getFullYear(), now.getMonth(), monthDays, 23, 59, 59);
-    for (var i in self.events) {
-      var e = self.events[i];
+      // Greedy interval partitioning: each event occupies the first lane
+      // whose existing segments do not overlap its date columns.
+      const laneEnds = [];
+      for (const segment of segments) {
+        let lane = 0;
+        while (lane < laneEnds.length && laneEnds[lane] >= segment.first) lane++;
+        if (lane === laneEnds.length) laneEnds.push(-1);
+        laneEnds[lane] = segment.last;
+        segment.lane = lane;
+      }
 
-      for (var eventDate = e.startDate; eventDate <= e.endDate; eventDate = addOneDay(eventDate)) {
-        var dayDiff = diffDays(eventDate, monthStart);
+      for (const segment of segments) {
+        const e = segment.event;
+        const bar = el("div", { className: "event" });
+        bar.style.gridColumn = (segment.first + (self.config.showWeekNumber ? 2 : 1)) + " / span " + (segment.last - segment.first + 1);
+        bar.style.gridRow = String(segment.lane + 2);
+        if (!self.config.wrapTitles) bar.classList.add("event-nowrap");
 
-        if (dayDiff in dateCells) {
-          let div = el("div", { "className": "event" });
-          if (!self.config.wrapTitles) {
-            div.classList.add("event-nowrap");
-          }
-
-          // Print the time if it is NOT a full day event.
-          // And if it is NOT the 2nd or later day of a multi-day event.
-          if (!e.fullDayEvent && !(e.multiDayEvent && (eventDate > e.startDate))) {
-            div.appendChild(el("span", { "className": "event-label", "innerText": formatEventTime(e.startDate) }));
-          }
-
-          if (self.config.displaySymbol) {
-            for (let symbol of e.symbol) {
-              div.appendChild(el("span", { "className": `event-label fa fa-${symbol}` }));
-            }
-          }
-
-          div.appendChild(el("span", { "innerText": e.title }));
-
-          // Print ending time if last day of multi-day event.
-          if (e.multiDayEvent && (eventDate.toDateString() == e.endDate.toDateString())) {
-            div.appendChild(el("span", { "className": "event-label", "innerText": self.config.multiDayEndingTimeSeparator + formatEventTime(e.endDate) }));
-          }
-
-          if (e.color) {
-            var c = e.color;
-
-            if (e.fullDayEvent || e.multiDayEvent) {
-              div.style.backgroundColor = c;
-              if (getLuminance(div.style.backgroundColor) >= self.config.luminanceThreshold) {
-                div.className += " event-lightbackground";
-              } else {
-                div.className += " event-darkbackground";
-              }
-            } else {
-              div.style.color = c;
-            }
-          }
-
-          dateCells[dayDiff].appendChild(div);
+        const isFirstDay = segment.first === Math.max(0, ordinal(e.startDate) - ordinal(week.dates[0]));
+        const isLastDay = segment.last === Math.min(6, ordinal(e.endDate) - ordinal(week.dates[0]));
+        if (!e.fullDayEvent && !e.multiDayEvent || (!e.fullDayEvent && isFirstDay)) {
+          bar.appendChild(el("span", { className: "event-label", innerText: formatEventTime(e.startDate) }));
         }
+        if (self.config.displaySymbol && e.symbol) {
+          for (const symbol of e.symbol) bar.appendChild(el("span", { className: "event-label fa fa-" + symbol }));
+        }
+        bar.appendChild(el("span", { innerText: e.title }));
+        if (!e.fullDayEvent && e.multiDayEvent && isLastDay && ordinal(e.endDate) >= ordinal(week.dates[0]) && ordinal(e.endDate) <= ordinal(week.dates[6])) {
+          bar.appendChild(el("span", { className: "event-label", innerText: self.config.multiDayEndingTimeSeparator + formatEventTime(e.endDate) }));
+        }
+        if (e.color) {
+          if (e.fullDayEvent || e.multiDayEvent) {
+            bar.style.backgroundColor = e.color;
+            bar.classList.add(getLuminance(bar.style.backgroundColor) >= self.config.luminanceThreshold ? "event-lightbackground" : "event-darkbackground");
+          } else bar.style.color = e.color;
+        }
+        row.appendChild(bar);
       }
+      grid.appendChild(row);
     }
-
-    return table;
+    return grid;
   },
 });
